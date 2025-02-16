@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'; // FontAwesome Trash Icon
+import { PDFDocument } from 'pdf-lib';
 import './ConvertPdf.css';
-import { colors } from '@mui/material';
 
 const ConvertPdf = () => {
   const [images, setImages] = useState([]);
-  const [orientation, setOrientation] = useState('portrait'); // Track orientation
-  const [pageSize, setPageSize] = useState('A4'); // Track page size
-  const [margin, setMargin] = useState('medium'); // Track margin size
-  const [mergeImages, setMergeImages] = useState(false); // Track merge option
+  const [orientation, setOrientation] = useState('portrait'); // Page orientation
+  const [pageSize, setPageSize] = useState('A4'); // Page size
+  const [margin, setMargin] = useState('medium'); // Margin size
+  const [mergeImages, setMergeImages] = useState(false); // Merge option
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -39,88 +39,64 @@ const ConvertPdf = () => {
     localStorage.setItem('uploadedImages', JSON.stringify(updatedImages));
   };
 
-  // Handle change in page orientation
-  const handleOrientationChange = (orientation) => {
-    setOrientation(orientation);
-  };
-
-  // Handle page size change (Dropdown)
-  const handlePageSizeChange = (event) => {
-    setPageSize(event.target.value);
-  };
-
-  // Handle margin size change
-  const handleMarginChange = (size) => {
-    setMargin(size);
-  };
-
-  // Handle merge checkbox change
-  const handleMergeChange = () => {
-    setMergeImages(!mergeImages);
-  };
-
   // Function to generate and download the PDF
-  const handleConvertToPDF = () => {
-    // Creating a canvas element
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    // Default A4 page size (Portrait, 210 x 297 mm)
-    const pageWidth = 210;
-    const pageHeight = 297;
-
-    // Adjust for page size selection
-    let imgWidth = pageWidth;
-    let imgHeight = pageHeight;
-
-    if (pageSize === 'A4') {
-      imgWidth = 210;
-      imgHeight = 297;
-    } else if (pageSize === 'A3') {
-      imgWidth = 297;
-      imgHeight = 420;
+  const handleConvertToPDF = async () => {
+    if (images.length === 0) {
+      alert('Please upload at least one image to convert to PDF');
+      return;
     }
 
-    // Apply margin values
-    const marginValue = margin === 'big' ? 20 : margin === 'medium' ? 15 : 10;
+    const pdfDoc = await PDFDocument.create();
 
-    let currentPage = 1;
+    for (const image of images) {
+      const imgBytes = await fetch(image.src).then((res) => res.arrayBuffer());
+      const img = await pdfDoc.embedJpg(imgBytes);
 
-    // Generate PDF content (Base64 images)
-    const pdfContent = [];
+      // Define page sizes for A4 and A3
+      let pageWidth, pageHeight;
+      if (pageSize === 'A4') {
+        pageWidth = 595;
+        pageHeight = 842;
+      } else if (pageSize === 'A3') {
+        pageWidth = 842;
+        pageHeight = 1191;
+      }
 
-    images.forEach((image, index) => {
-      const img = new Image();
-      img.src = image.src;
+      // Apply orientation
+      if (orientation === 'landscape') {
+        [pageWidth, pageHeight] = [pageHeight, pageWidth];
+      }
 
-      img.onload = () => {
-        // Set the canvas size to the page size
-        canvas.width = imgWidth;
-        canvas.height = imgHeight;
+      const page = pdfDoc.addPage([pageWidth, pageHeight]);
 
-        // Draw the image on the canvas with margin
-        ctx.drawImage(
-          img,
-          marginValue,
-          marginValue,
-          imgWidth - 2 * marginValue,
-          imgHeight - 2 * marginValue
-        );
-        console.log(pageSize, margin, orientation);
-        // Save the canvas content as base64
-        pdfContent.push(canvas.toDataURL('image/png'));
+      // Apply margins
+      const marginValue = margin === 'big' ? 50 : margin === 'medium' ? 30 : 10;
 
-        // If mergeImages is false, generate a new page for each image
-        if (!mergeImages || index === images.length - 1) {
-          // Create an anchor element to trigger download
-          const downloadLink = document.createElement('a');
-          downloadLink.href = pdfContent[index];
-          downloadLink.download = 'converted_images.pdf';
-          downloadLink.click();
-          localStorage.removeItem('uploadedImages');
-        }
-      };
-    });
+      // Adjust image size based on margins
+      const imgWidth = pageWidth - 2 * marginValue;
+      const imgHeight = (img.width / img.height) * imgWidth;
+
+      page.drawImage(img, {
+        x: marginValue,
+        y: pageHeight - imgHeight - marginValue,
+        width: imgWidth,
+        height: imgHeight,
+      });
+    }
+
+    const pdfBytes = await pdfDoc.save();
+
+    // Download the generated PDF
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'converted_images.pdf';
+    link.click();
+
+    // Cleanup
+    URL.revokeObjectURL(url);
+    localStorage.removeItem('uploadedImages');
   };
 
   return (
@@ -167,27 +143,27 @@ const ConvertPdf = () => {
         </div>
       </div>
       <div className="options-section">
-        <h2>Option</h2>
+        <h2>Options</h2>
         <div className="option-group">
-          <h3>Page orientation</h3>
+          <h3>Page Orientation</h3>
           <button
             className="option-button"
-            onClick={() => handleOrientationChange('portrait')}
+            onClick={() => setOrientation('portrait')}
           >
             Portrait
           </button>
           <button
             className="option-button"
-            onClick={() => handleOrientationChange('landscape')}
+            onClick={() => setOrientation('landscape')}
           >
             Landscape
           </button>
         </div>
         <div className="option-group">
-          <h3>Page size</h3>
+          <h3>Page Size</h3>
           <select
             value={pageSize}
-            onChange={handlePageSizeChange}
+            onChange={(e) => setPageSize(e.target.value)}
             className="page-size-dropdown"
           >
             <option value="A4">A4</option>
@@ -196,33 +172,18 @@ const ConvertPdf = () => {
         </div>
         <div className="option-group">
           <h3>Margin</h3>
-          <button
-            className="option-button2"
-            onClick={() => handleMarginChange('big')}
-          >
+          <button className="option-button2" onClick={() => setMargin('big')}>
             Big
           </button>
           <button
             className="option-button2"
-            onClick={() => handleMarginChange('medium')}
+            onClick={() => setMargin('medium')}
           >
             Medium
           </button>
-          <button
-            className="option-button2"
-            onClick={() => handleMarginChange('small')}
-          >
+          <button className="option-button2" onClick={() => setMargin('small')}>
             Small
           </button>
-        </div>
-        <div className="option-group">
-          <input
-            type="checkbox"
-            id="merge"
-            checked={mergeImages}
-            onChange={handleMergeChange}
-          />
-          <label htmlFor="merge">Merge all images in one PDF file</label>
         </div>
         <button className="convert-button" onClick={handleConvertToPDF}>
           Convert to PDF

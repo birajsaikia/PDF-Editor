@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import HomePage from './Pages/Homepage/Homepage';
-import ImageToPdf from './Pages/ImageToPdf/ImageToPdf';
+import ImageToPdf from './Pages/ImageToPdf/ImagetoPdf';
 import ConvertToPdf from './Pages/Convert_PDF/ConvertPdf';
 import MergeToPdf from './Pages/MergePdf/MergePdf';
 import CompressPDF from './Pages/Compress_PDF/CompressPdf';

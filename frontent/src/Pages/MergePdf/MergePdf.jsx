@@ -1,10 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PDFDocument } from 'pdf-lib';
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons'; // ✅ Import the icon
+
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { Viewer, Worker } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import './MergePdf.css';
+// // import { Worker } from '@react-pdf-viewer/core';
+// import { pdfjs } from 'react-pdf';
+
+// // Set PDF.js worker path
+// pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@3.9.179/build/pdf.worker.min.js`;
 
 const MergePdf = () => {
   const [pdfFiles, setPdfFiles] = useState([]);
@@ -79,7 +87,12 @@ const MergePdf = () => {
             onClick={handlePlaceholderClick}
             style={{ flex: '0.5' }}
           >
-            <div className="upload-icon">⬆️</div>
+            <div className="upload-icon">
+              <FontAwesomeIcon
+                icon={faArrowUpFromBracket}
+                style={{ fontSize: '100px', color: 'rgb(194 33 29)' }}
+              />
+            </div>
             <p>Select PDF files to merge</p>
             <input
               type="file"
@@ -95,7 +108,7 @@ const MergePdf = () => {
               <div key={index} className="file-item">
                 <div className="pdf-preview">
                   <Worker
-                    workerUrl={`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js`}
+                    workerUrl={`https://unpkg.com/pdfjs-dist@3.9.179/build/pdf.worker.min.js`}
                   >
                     <Viewer fileUrl={file.url} />
                   </Worker>
