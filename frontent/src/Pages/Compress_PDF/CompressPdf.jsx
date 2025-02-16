@@ -104,36 +104,37 @@ const CompressPdf = () => {
   return (
     <div className="container">
       <div className="upload-section">
-        <div
-          className="upload-box"
-          onClick={() => fileInputRef.current.click()}
-        >
-          <div className="upload-icon">⬆️</div>
-          <p>Select JPG or PDF files</p>
-          <input
-            type="file"
-            accept="image/jpeg,application/pdf"
-            multiple
-            onChange={handleFileUpload}
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-          />
-        </div>
+        <div className="upload-section2">
+          <div
+            className="upload-box"
+            onClick={() => fileInputRef.current.click()}
+          >
+            <div className="upload-icon">⬆️</div>
+            <p>Select JPG or PDF files</p>
+            <input
+              type="file"
+              accept="image/jpeg,application/pdf"
+              multiple
+              onChange={handleFileUpload}
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+            />
+          </div>
 
-        <div className="file-list">
-          {files.map((file, index) => (
-            <div key={index} className="file-item">
-              <p className="file-name">{file.name}</p>
-              <FontAwesomeIcon
-                icon={faTrashAlt}
-                className="delete-icon"
-                onClick={() => handleDeleteFile(index)}
-              />
-            </div>
-          ))}
+          <div className="file-list">
+            {files.map((file, index) => (
+              <div key={index} className="file-item">
+                <p className="file-name">{file.name}</p>
+                <FontAwesomeIcon
+                  icon={faTrashAlt}
+                  className="delete-icon"
+                  onClick={() => handleDeleteFile(index)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-
       <div className="options-section">
         <h2>Compression Options</h2>
         <div className="option-group">
