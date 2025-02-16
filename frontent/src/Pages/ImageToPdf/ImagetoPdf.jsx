@@ -76,24 +76,24 @@ const imagetoPDF = () => {
               style={{ display: 'none' }}
             />
           </div>
+          <div className="file-list">
+            {files.map((image, index) => (
+              <div key={index} className="image-item">
+                <img
+                  src={image.src}
+                  alt={image.name}
+                  className="image-preview"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      {images.length > 0 && (
-        <div className="image-list">
-          <h2>Extracted Images</h2>
-          {images.map((image, index) => (
-            <div key={index} className="image-item">
-              <img src={image.src} alt={image.name} className="image-preview" />
-              <button
-                className="download-button"
-                onClick={() => handleDownloadImage(image)}
-              >
-                Download JPG
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="options-section">
+        <button className="convert-button" onClick={mergePDF}>
+          Download Image
+        </button>
+      </div>
     </div>
   );
 };
