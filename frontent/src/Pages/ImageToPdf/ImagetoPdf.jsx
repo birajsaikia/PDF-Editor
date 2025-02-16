@@ -61,22 +61,23 @@ const imagetoPDF = () => {
   return (
     <div className="container">
       <div className="upload-section">
-        <div
-          className="upload-box"
-          onClick={() => fileInputRef.current.click()}
-        >
-          <div className="upload-icon">⬆️</div>
-          <p>Select a PDF file</p>
-          <input
-            type="file"
-            accept="application/pdf"
-            onChange={handleFileUpload}
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-          />
+        <div className="upload-section2">
+          <div
+            className="upload-box"
+            onClick={() => fileInputRef.current.click()}
+          >
+            <div className="upload-icon">⬆️</div>
+            <p>Select a PDF file</p>
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handleFileUpload}
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+            />
+          </div>
         </div>
       </div>
-
       {images.length > 0 && (
         <div className="image-list">
           <h2>Extracted Images</h2>
